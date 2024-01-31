@@ -1,0 +1,32 @@
+Package: rOceanData
+Title: rOceanData: a package to simplify downloading, extracting, and visualising ocean satellite data
+Version: 0.1.0
+Authors@R: 
+    person("George", "Roff", , "george.roff@csiro.au", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-2823-0575"))
+License: GPL (>= 3)
+Description: The rOceanData package is a collection of "user friendly" functions that simplify downloading, extracting, 
+    and visualising global ocean satellite datasets (NOAA CRW, HadISST) for non-oceanographers. The functions facilitate downloading .netCDF files 
+    from THREDDS Data Servers, extracting, subsetting, and processing data to .csv and spatraster formats, and mapping global 
+    datasets using the terra package. 
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Depends: R (>= 4.1.0)
+Imports:
+    dplyr,
+    ggplot2,
+    grid,
+    lubridate,
+    magrittr,
+    ncdf4,
+    ncdf4.helpers,
+    rnaturalearth,
+    scales,
+    sf,
+    terra,
+    thredds,
+    tidyterra,
+    tmap
+URL: https://github.com/marine-ecologist/rOceanData
+BugReports: https://github.com/marine-ecologist/rOceanData/issues

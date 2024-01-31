@@ -1,0 +1,208 @@
+---
+title: "turbinaria"
+output: html_document
+date: "2024-01-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### import sites
+
+Import site data and convert to `sf` format
+
+```{r, warning=FALSE, message=FALSE}
+library(stringr)
+library(tidyverse)
+
+sites <- read.csv("/Users/rof011/rOceanData/datasets/collections_output_turbs.csv") |>
+  filter(str_detect(sample_id, "AU18")) |>
+  mutate(subregion = if_else(area == "Moreton", "seQLD", subregion)) |> 
+  mutate(subregion_ordered = factor(subregion, levels =  c("sGBR", "seQLD", "nNSW", "cNSW")))
+
+library(sf)
+sites_sf <- st_as_sf(sites, coords=c("longitude", "latitude"), crs=4326)
+
+```
+
+### import map components
+
+import `rnaturalearth` for borders, use `WFS` for internal borders and high res coastline
+
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+
+### map
+library(tmap)
+library(rnaturalearth)
+library(httr)
+library(ows4R)
+
+# get countries and coastlines
+ausmapcoastlines <- ne_coastline(returnclass="sf", scale="large")
+ausmapstates <- ne_countries(country="Australia", returnclass="sf")
+ausmap <- ne_countries(country="Australia", returnclass="sf", scale="large")
+
+# get Australian coastlines
+xmin = 150; xmax = 155; ymin = -32; ymax = -22
+deacl_annualshorelines = "https://geoserver.dea.ga.gov.au/geoserver/wfs?service=WFS&version=1.1.0&request=GetFeature&typeName=dea:shorelines_annual&maxFeatures=1000&bbox={ymin},{xmin},{ymax},{xmax},urn:ogc:def:crs:EPSG:4326" %>% 
+  glue::glue() %>%
+  sf::read_sf() %>% 
+  sf::st_set_crs(4326)
+
+# get Australian internal borders
+ausgeo <- "https://services.ga.gov.au/gis/services/AustraliasLandBorders/MapServer/WFSServer"
+ausgeo_client <- WFSClient$new(ausgeo, serviceVersion = "2.0.0")
+land_borders <- ausgeo_client$getFeatures(typeName = "AustraliasLandBorders:Land_Borders") |> st_transform(4326)
+
+# get UNEP coral data:
+coralreefdist <- st_read("/Users/rof011/rOceanData/datasets/WCMC008_CoralReefs2018_v4_1/14_001_WCMC008_CoralReefs2018_v4_1/01_Data/WCMC008_CoralReef2018_Py_v4_1.shp") #|>
+  #st_make_valid() #|>
+  #st_crop(c(150, -32,  155, -22))
+
+  
+```
+
+#### rOceanData
+
+get data for SST from `rOceanData`
+
+```{r, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
+
+OISST_map <- extract_ocean_data(dataset="ncdcOisst2Agg[sst]", space = c(150, 155,  -32, -22), time = c("2015-01-01", "2020-01-01"))
+OISST_map_mean <- OISST_map$data |>
+  group_by(longitude, latitude) |>
+  summarise(SST=mean(sst_degree_c)) |>
+  rast(type="xyz", crs="EPSG:4326")
+
+MUR_map <- extract_ocean_data(dataset="jplMURSST41mday[sst]", space = c(150, 155,  -32, -22), time = c("2015-01-01", "2020-01-01"))
+MUR_map_mean <- MUR_map$data |>
+  group_by(longitude, latitude) |>
+  summarise(SST=mean(sst_degree_c)) |>
+  rast(type="xyz", crs="EPSG:4326")
+
+```
+
+```{r, eval=TRUE, message=FALSE, warning=FALSE, include=TRUE, cache=TRUE}
+
+OISST_map_mean <- readRDS("/Users/rof011/rOceanData/datasets/OISST_map_mean.RDS")
+MUR_map_mean <- readRDS("/Users/rof011/rOceanData/datasets/MUR_map_mean.RDS")
+```
+
+#### ggplot
+
+Plot using `ggplot` and `patchwork`
+
+```{r, fig.width=9, fig.height=5}
+
+
+### ggplot
+
+library(patchwork)
+library(tidyterra)
+
+### functions
+compare_ratio <- function(xlim, ylim) {
+  x_range <- abs(xlim[2] - xlim[1])
+  y_range <- abs(ylim[2] - ylim[1])
+  return(x_range / y_range)
+}
+
+st_insetbox <- function(xlim, ylim) {
+  if(length(xlim) != 2 || length(ylim) != 2) {
+    stop("xlim and ylim must each have exactly two elements.")
+  }
+  points <- matrix(c(xlim[1], ylim[1],
+                     xlim[2], ylim[1],
+                     xlim[2], ylim[2],
+                     xlim[1], ylim[2],
+                     xlim[1], ylim[1]),
+                   ncol = 2, byrow = TRUE)
+  polygon <- st_polygon(list(points))
+  sfc_polygon <- st_sfc(polygon, crs = 4326)
+  return(sfc_polygon)
+}
+
+# limits
+
+
+# main map
+main <- ggplot() + theme_bw() +
+  geom_spatraster(data=MUR_map_mean, show.legend=TRUE) +
+  geom_sf(data=ausmap_crop, show.legend=FALSE) +
+  geom_sf(data=land_borders_crop, linewidth=0.1) +
+  geom_sf(data=sites_sf, aes(color=subregion), fill=NA, show.legend=TRUE) +
+  geom_sf(data=st_insetbox(xlim=c(152.9, 153.8), ylim=c(-30.4, -29.8)), fill=NA, color="darkred", lwd=0.3) +
+  geom_sf(data=st_insetbox(xlim=c(153.5, 153.755), ylim=c(-28.7, -28.53)), fill=NA, color="darkred", lwd=0.3) +
+  geom_sf(data=st_insetbox(xlim=c(152.7, 154.4), ylim=c(-27.78, -26.65)), fill=NA, color="darkred", lwd=0.3) +
+  geom_sf(data=st_insetbox(xlim=c(150.4, 153.4), ylim=c(-24.6, -22.54)), fill=NA, color="darkred", lwd=0.3) +
+  geom_text(aes(x=150.55, y=-22.75, label="a"), size=4.5) +
+  geom_text(aes(x=152.86, y=-26.82, label="b"), size=4.5) +
+  geom_text(aes(x=153.4, y=-28.36, label="c"), size=4.5) +
+  geom_text(aes(x=153.05, y=-29.95, label="d"), size=4.5) +
+  geom_text(aes(x=151, y=-28, label="Queensland"), size=3, color="grey40") +
+  geom_text(aes(x=151.2, y=-30, label="New South Wales"), size=3, color="grey40") +
+  scale_fill_distiller(palette="RdBu") +
+  scale_color_manual(values=c("darkred", "darkorange4", "darkgrey", "darkblue"), na.value = "transparent") +
+  coord_sf(xlim=c(150.25, 154.8), ylim=c(-31.5, -22.5)) + ylab("") + xlab("") +
+  theme(legend.position="left")
+
+
+cNSW <- ggplot() + theme_bw() +
+  geom_spatraster(data=MUR_map_mean, show.legend=FALSE) +
+  geom_sf(data=ausmap_crop) +
+  geom_sf(data=land_borders_crop, linewidth=0.1) +
+  geom_sf(data=sites_sf, aes(color=subregion), show.legend=FALSE) +
+  geom_text(aes(x=153.12, y=-29.8, label="d) Central New South Wales"), size=4) +
+  scale_fill_distiller(palette="RdBu", na.value="transparent") +
+  scale_color_manual(values=c("darkred", "darkorange4", "grey", "darkblue")) +
+  coord_sf(xlim=c(152.9, 153.8), ylim=c(-30.4, -29.8)) +  ylab("") + xlab("")
+
+#compare_ratio(xlim=c(152.9, 153.8), ylim=c(-30.4, -29.8))
+
+nNSW <- ggplot() + theme_bw() +
+  geom_spatraster(data=MUR_map_mean, show.legend=FALSE) +
+  geom_sf(data=ausmap_crop) +
+  geom_sf(data=land_borders_crop, linewidth=0.1) +
+  geom_sf(data=sites_sf, aes(color=subregion), show.legend=FALSE) +
+  geom_text(aes(x=153.565, y=-28.53, label="c) Northern New South Wales"), size=4) +
+  scale_fill_distiller(palette="RdBu", na.value="transparent") +
+  scale_color_manual(values=c("darkred", "darkorange4", "grey", "darkblue")) +
+  coord_sf(xlim=c(153.5, 153.755), ylim=c(-28.7, -28.53)) +  ylab("") + xlab("")
+
+seQLD <- ggplot() + theme_bw() +
+  geom_spatraster(data=MUR_map_mean, show.legend=FALSE) +
+  geom_sf(data=ausmap_crop) +
+  geom_sf(data=land_borders_crop, linewidth=0.1) +
+  geom_sf(data=sites_sf, aes(color=subregion), show.legend=FALSE) +
+  geom_text(aes(x=153.07, y=-26.65, label="b) South-east Queensland"), size=4) +
+  scale_fill_distiller(palette="RdBu", na.value="transparent") +
+  scale_color_manual(values=c("darkred", "darkorange4", "darkgrey", "darkblue")) +
+  coord_sf(xlim=c(152.7, 154.4), ylim=c(-27.78, -26.65)) +  ylab("") + xlab("")
+
+sGBR <- ggplot() + theme_bw() +
+  geom_spatraster(data=MUR_map_mean, show.legend=FALSE) +
+  geom_sf(data=ausmap_crop) +
+  geom_sf(data=land_borders_crop, linewidth=0.1) +
+  geom_sf(data=sites_sf, aes(color=subregion), show.legend=FALSE) +
+  geom_text(aes(x=151.2, y=-22.55, label="a) Southern Great Barrier Reef"), size=4) +
+  scale_fill_distiller(palette="RdBu", na.value="transparent") +
+  scale_color_manual(values=c("darkred", "darkorange4", "grey", "darkblue")) +
+  coord_sf(xlim=c(150.4, 153.4), ylim=c(-24.6, -22.54)) +  ylab("") + xlab("")
+
+layout <- '
+ABC
+ADE
+'
+fig_map <- wrap_plots(A = main,
+           B = sGBR,
+           C = seQLD,
+           D = nNSW,
+           E = cNSW, design = layout)
+
+fig_map
+
+# ggsave(fig_map, filename="figmap.png", width=16, height=10)
+
+
+```
