@@ -9,12 +9,12 @@
 #' @param filename filename for saving
 #' @param space either a four length numeric vector (xmin, xmax, ymin, ymax) or a csv/xlsx of sites containing lon and lat columns
 #' @param time vector containing two time periods in YYYY-MM-DD format e.g. c("2003-01-01", "2024-01-01")
-#' @param save.output TRUE/FALSE for saving output to RDS based on filename.
+#' @param save_file TRUE/FALSE for saving output to RDS based on filename.
 #' @param ... passes functions
 
 #' @export
 
-extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save.output=NULL, ...) {
+extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save_file=NULL, ...) {
 
   ##### get source data
   sourcedata <- get_sourcedata()
@@ -39,8 +39,8 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
       (stop(print("coordinates must be in a vector (xmin, xmax, ymin, ymax) or as a file path to sites in either .xlsx, .xls, .csv")))
     }
 
-    lon_columns <- grep("lon", names(coordlist), value = TRUE, ignore.case = TRUE)
-    lat_columns <- grep("lat", names(coordlist), value = TRUE, ignore.case = TRUE)
+    lon_columns <- grep("^lon", names(coordlist), value = TRUE, ignore.case = TRUE)
+    lat_columns <- grep("^lat", names(coordlist), value = TRUE, ignore.case = TRUE)
     coordlist <- coordlist %>% dplyr::mutate(longitude_cell = .[[lon_columns]], latitude_cell = .[[lat_columns]])
 
     if(any(coordlist$longitude_cell > 180 | coordlist$longitude_cell < -180)) {
@@ -130,8 +130,8 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
 
   combined_list <- list(data = final.data, metadata = data_info)
 
-  if (!is.null(save.output)) {
-    base::saveRDS(object=final.data, file=paste0("",save.output, ".rds"))
+  if (!is.null(save_file)) {
+    base::saveRDS(object=combined_list, file=paste0("",save_file, ".rds"))
   }
 
   return(combined_list)
