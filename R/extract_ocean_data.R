@@ -1,5 +1,5 @@
 
-#' Extract ocean data
+#' Extract ocean data v0.1.0.9002
 #'
 #' DEVELOPMENT function to extract ocean data from satellites
 #'
