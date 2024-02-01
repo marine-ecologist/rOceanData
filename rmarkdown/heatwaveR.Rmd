@@ -1,46 +1,122 @@
 ---
-title: "heatwaveR"
+title: "rOceanData and heatwaveR"
 output: html_document
-date: "2024-01-23"
+date: "2024-02-01"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Multi-scale Ultra-high Resolution (MUR) SST Analysis fv04.1, Global, 0.01°, 2002-present, Daily
-  
-```{r, cache=TRUE}
-library(dplyr)
-library(purrr)
-library(ggplot2)
-library(heatwaveR)
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+the heatwaveR vignettes demonstrate two ways for downloading satellite data: 1) [accessing the ERDAPP servers using `rerddap`](https://robwschlegel.github.io/heatwaveR/articles/OISST_preparation.html), and 2) [using `tidync` and parallel process individual ‘slices’](https://robwschlegel.github.io/heatwaveR/articles/Download_SST_v2.html). Both approaches are valid and allow for exact extraction and manipulation of data, but require some level of `R` or `python` understanding. 
+
+The `heatwaveR` vignette extracts NOAA OISST satellite temperature data for spatial extent of latitude `-40` to `-35` and longitude `15` to `21` from `1982-01-01` to `2019-12-31` using the following code: 
+
+```{r eval=FALSE, include=TRUE}
+
+# The packages we will use
+library(dplyr) # A staple for modern data management in R
+library(lubridate) # Useful functions for dealing with dates
+library(ggplot2) # The preferred library for data visualisation
+library(tidync) # For easily dealing with NetCDF data
+library(rerddap) # For easily downloading subsets of data
+library(doParallel) # For parallel processing
+
+# The information for the NOAA OISST data
+rerddap::info(datasetid = "ncdcOisst21Agg_LonPM180", url = "https://coastwatch.pfeg.noaa.gov/erddap/")
+
+# Note that there is also a version with lon values from 0 yo 360
+rerddap::info(datasetid = "ncdcOisst21Agg", url = "https://coastwatch.pfeg.noaa.gov/erddap/")
+
+# This function downloads and prepares data based on user provided start and end dates
+OISST_sub_dl <- function(time_df){
+  OISST_dat <- rerddap::griddap(datasetx = "ncdcOisst21Agg_LonPM180",
+                                url = "https://coastwatch.pfeg.noaa.gov/erddap/", 
+                                time = c(time_df$start, time_df$end), 
+                                zlev = c(0, 0),
+                                latitude = c(-40, -35),
+                                longitude = c(15, 21),
+                                fields = "sst")$data %>% 
+    dplyr::mutate(time = base::as.Date(stringr::str_remove(time, "T12:00:00Z"))) %>% 
+    dplyr::rename(t = time, temp = sst, lon = longitude, lat = latitude) %>% 
+    dplyr::select(lon, lat, t, temp) %>% 
+    stats::na.omit()
+}
+
+# Date download range by start and end dates per year
+dl_years <- data.frame(date_index = 1:5,
+                       start = c("1982-01-01", "1990-01-01", 
+                                 "1998-01-01", "2006-01-01", "2014-01-01"),
+                       end = c("1989-12-31", "1997-12-31", 
+                               "2005-12-31", "2013-12-31", "2019-12-31"))
+
+# Download all of the data with one nested request
+# The time this takes will vary greatly based on connection speed
+
+test1 <- OISST_sub_dl(dl_years[1,])
+
+base::system.time(
+  OISST_data <- dl_years %>% 
+    dplyr::group_by(date_index) %>% 
+    dplyr::group_modify(~OISST_sub_dl(.x)) %>% 
+    dplyr::ungroup() %>% 
+    dplyr::select(lon, lat, t, temp)
+) # 518 seconds, ~100 seconds per batch
 
 ```
 
-```{r eval=FALSE, cache=TRUE, include=TRUE}
+in `rOceanData` the same data download would be written like this: 
 
+```{r eval=TRUE, include=TRUE, cache=TRUE}
+library(rOceanData)
 
-maldives_MUR_heatwaves <- extract_ocean_data(dataset="jplMURSST41[analysed_sst]",
-                                             space = c(70, 72, 1, 2), 
-                                             time = c("2002-01-01", "2024-01-01")) 
-
-
-
+OISST_data <- extract_ocean_data(data="ncdcOisst21Agg_LonPM180[sst]", 
+                                 space=c(-40, -35, 15, 21), 
+                                 time=c("1982-01-01", "2019-12-31"))
 ```
 
+the downloaded data can then be passed to heatwaveR either on a "per gridcell" basis: 
 
 ```{r}
 
-trial <- maldives_MUR_heatwaves$data |> 
-  filter(longitude==70.05) |> 
-  filter(latitude==1.05) |> 
-  mutate(date=as.Date(time))
+library(heatwaveR)
+library(dplyr)
 
-ts <- ts2clm(trial, x=date, y=sstAnom, climatologyPeriod = c("2002-06-01", "2024-01-01"))
-mhw <- detect_event(ts, x=date, y=seas)
+OISST_data_cell <- OISST_data |> 
+  pull(data) |>  
+  dplyr::filter(longitude==-39.875, latitude==15.125) 
 
-event_line(mhw, x=date, y=sstAnom, spread = 180, metric = intensity_max, 
-           start_date = "2002-06-01", end_date = "2024-01-01")
+ts <- ts2clm(OISST_data_cell, x=date, y=sst_degree_c, climatologyPeriod = c("1982-01-01", "2019-12-31"))
+mhw <- detect_event(ts,  x=date, y=sst_degree_c)
+
+event_line(mhw, x=date, y=sst_degree_c, spread = 180, metric = "intensity_max", 
+           start_date = "1982-01-01", end_date = "2019-12-31")
 
 ```
+
+or applied across the entire grid:
+
+```{r}
+OISST_data_all <- OISST_data$data |> 
+  mutate(time=as.Date(time))
+
+results <- OISST_data$data %>%
+  group_by(longitude, latitude) %>%
+  summarise(ts2clm_result = list(ts2clm(data = cur_data(), x = 'time', y = 'sst_degree_c'), 
+                                 climatologyPeriod = c("1982-01-01", "2019-12-31")), .groups = 'drop')
+
+
+# Split the dataframe into a list of dataframes, each containing data for a unique longitude and latitude pair
+# Apply ts2clm to each dataframe in the list
+
+split_data <- split(OISST_data_all, list(OISST_data_all$longitude, OISST_data_all$latitude)) 
+results <- sapply(split_data, function(data) ts2clm(data = df,x = 'time', y = 'sst_degree_c', 
+                                 climatologyPeriod = c("1982-01-01", "2019-12-31")), simplify = FALSE)
+
+
+```
+

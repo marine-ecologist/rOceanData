@@ -59,7 +59,9 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
         tidy_od(data_id) |>
         dplyr::mutate(site_lon=coordstring[1]) |>
         dplyr::mutate(site_lat=coordstring[3]) |>
-        dplyr::mutate(site=coordlist$site[i])
+        dplyr::mutate(site=coordlist$site[i]) |>
+        dplyr::mutate(date=as.Date(time)) |>
+        dplyr::select(-time)
       final.data[[i]] <- tmp
     }
 
