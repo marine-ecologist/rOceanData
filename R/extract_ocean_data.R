@@ -36,7 +36,7 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
     } else if (grepl(".*csv.*", space) == TRUE) {
         coordlist <- read.csv(space)
     } else {
-      (stop(print("coordinates must be in a vector (xmin, xmax, ymin, ymax) or as a file path to sites in either .xlsx, .xls, .csv")))
+      (stop(print("coordinates must be in a vector (xmin, xmax, ymin, ymax) or as a file path to sites in either .xlsx, .xls, .csv format")))
     }
 
     lon_columns <- grep("^lon", names(coordlist), value = TRUE, ignore.case = TRUE)
