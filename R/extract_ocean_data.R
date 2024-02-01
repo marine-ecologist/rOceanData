@@ -14,7 +14,7 @@
 
 #' @export
 
-extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save.output=NULL, ...) {
+extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save_file=NULL, ...) {
 
   ##### get source data
   sourcedata <- get_sourcedata()
@@ -130,8 +130,8 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
 
   combined_list <- list(data = final.data, metadata = data_info)
 
-  if (!is.null(save.output)) {
-    base::saveRDS(object=final.data, file=paste0("",save.output, ".rds"))
+  if (!is.null(save_file)) {
+    base::saveRDS(object=combined_list, file=paste0("",save_file, ".rds"))
   }
 
   return(combined_list)
