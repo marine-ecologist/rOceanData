@@ -14,7 +14,7 @@
 
 #' @export
 
-extract_ocean_data <- function(dataset = "none", filename = NULL, space = NULL, time = NULL, save.output=FALSE, ...) {
+extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save.output=NULL, ...) {
 
   ##### get source data
   sourcedata <- get_sourcedata()
@@ -125,32 +125,14 @@ extract_ocean_data <- function(dataset = "none", filename = NULL, space = NULL, 
 
   }
 
-#
-#   data_info <- data.frame(
-#     name = xml_headers[[7]]$value[[1]],
-#     dataset=data_id,
-#     var=data_var,
-#     longitude=paste0(xml.space[1], "° to ", xml.space[2],"°"),
-#     latitude=paste0(xml.space[3], "° to ",  xml.space[4],"°"),
-#     timeseries=paste0(xml.time[1], " to ", xml.time[2]),
-#     resolution=paste0(sourcedata[dataset,6], " timesteps"),
-#     timesteps=length(unique(final.data$time)),
-#     downloaded_date=Sys.time(),
-#     download.duration=round(end_time - start_time, 2),
-#     file.size=pryr::object_size(final.data, units="b"),
-#     url=sourcedata[dataset,9]
-#   ) |> t() |>
-#     as.data.frame() |>
-#     tibble::rownames_to_column() |>
-#     dplyr::rename(parameter=1, output=2)
-#
-
-  if (save.output == TRUE) {
-    base::saveRDS(object=final.data, file=paste0("",filename, ".rds"))
-  }
   rm(dataset)
   rm(sourcedata)
+
   combined_list <- list(data = final.data, metadata = data_info)
+
+  if (!is.null(save.output)) {
+    base::saveRDS(object=final.data, file=paste0("",save.output, ".rds"))
+  }
 
   return(combined_list)
 
