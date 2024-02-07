@@ -7,5 +7,5 @@
 list_ocean_data()
 }
 \description{
-DEVELOPMENT function to list sources for satellite data
+DEVELOPMENT function to list sources for satellite data for extract_ocean_data
 }

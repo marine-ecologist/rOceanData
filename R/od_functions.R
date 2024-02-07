@@ -59,6 +59,17 @@
   colnames(sourcedata) <- c("number", "dataset", "var", "satellite", "parameter", "temporal", "spatial", "timespan", "url")
 }
 
+
+#' select_data_source
+#'
+#' DEVELOPMENT Choose dataset from list
+#'
+#'
+#'
+#' @param dataset 1:52 common datasets
+#' @export
+#'
+
 select_data_source <- function(dataset = "none") {
 
   {sourcedata <-
@@ -268,6 +279,25 @@ select_data_source <- function(dataset = "none") {
   select_data
 }
 
+
+#' myURL.3dim
+#'
+#' get 3 dim URL (lon/lat/var)
+#'
+#'
+#'
+#' @param dataset 1:52 common datasets
+#' @param burl base URL  "https://coastwatch.pfeg.noaa.gov/erddap/",
+#' @param data_id data id
+#' @param ftype file type = ".nc",
+#' @param data_var data var,
+#' @param space space
+#' @param time time
+#'
+#' @export
+
+
+
 myURL.3dim <- function(burl = "https://coastwatch.pfeg.noaa.gov/erddap/", data_id, ftype = ".nc", data_var, space, time) {
   url1 <- paste(burl, "griddap/", data_id, ftype, "?", data_var, sep = "")
   urltime <- paste("[(", paste(new.time[1], "T00:00:00Z", sep = ""), "):1:(", paste(new.time[2], "T00:00:00Z", sep = ""), ")]", sep = "")
@@ -275,6 +305,24 @@ myURL.3dim <- function(burl = "https://coastwatch.pfeg.noaa.gov/erddap/", data_i
   urllon <- paste("[(", new.space[1], "):1:(", new.space[2], ")]", sep = "")
   paste(url1, urltime, urllat, urllon, sep = "")
 }
+
+
+#' myURL.4dim
+#'
+#' get 4 dim URL (lon/lat/z/var)
+#'
+#'
+#'
+#' @param dataset 1:52 common datasets
+#' @param burl base URL  "https://coastwatch.pfeg.noaa.gov/erddap/",
+#' @param data_id data id
+#' @param ftype file type = ".nc",
+#' @param data_var data var,
+#' @param space space
+#' @param time time
+#'
+#' @export
+
 
 myURL.4dim <- function(burl = "https://coastwatch.pfeg.noaa.gov/erddap/", data_id, ftype = ".nc", data_var, space, time) {
   url1 <- paste(burl, "griddap/", data_id, ftype, "?", data_var, sep = "")
@@ -285,66 +333,15 @@ myURL.4dim <- function(burl = "https://coastwatch.pfeg.noaa.gov/erddap/", data_i
   paste(url1, urltime, urlz, urllat, urllon, sep = "")
 }
 
-get_xml_headers <- function(data_id, burl = "https://coastwatch.pfeg.noaa.gov/erddap/") {
-  erddap_xml_URL <- paste(burl, "metadata/iso19115/xml/", data_id, "_iso19115.xml", sep = "")
-  erddap_xml_data <- XML::xmlParse(httr::content(httr::GET(erddap_xml_URL), "text"))
-  xml_data <- XML::xmlToList(erddap_xml_data)
 
-
-  length(xml_data$contentInfo$MI_CoverageDescription)
-
-  # Ammend with closest matches if outside bounds
-  ### make header from XML
-
-  #  header_file <-  "temp"
-  #  as.data.frame((rbind(
-  #   c("1","Dataset ID", data_id),
-  #  c("2","Variable", data_var)
-  # c("3","URL", paste(burl, "erddap/griddap/", data_id, ".html", sep = "")),
-  # c("4","Abstract", xml_data$identificationInfo$MD_DataIdentification$abstract$CharacterString),
-  # c("5","minimum Longitude value", as.numeric(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$geographicElement$EX_GeographicBoundingBox$westBoundLongitude$Decimal)),
-  #  c("6","maximum Longitude value", as.numeric(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$geographicElement$EX_GeographicBoundingBox$eastBoundLongitude$Decimal)),
-  # c("7","minimum Latitude value", as.numeric(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$geographicElement$EX_GeographicBoundingBox$southBoundLatitude$Decimal)),
-  #  c("8","maximum Longitude value", as.numeric(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$geographicElement$EX_GeographicBoundingBox$northBoundLatitude$Decimal)),
-  #  c("9","spatial resolution",   xml_data$spatialRepresentationInfo$MD_GridSpatialRepresentation$axisDimensionProperties$MD_Dimension$dimensionSize$Integer),
-  #  c("10","Start time date", as.Date(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$temporalElement$EX_TemporalExtent$extent$TimePeriod$beginPosition)),
-  #  c("11","End time date", as.Date(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$temporalElement$EX_TemporalExtent$extent$TimePeriod$endPosition)),
-  #  c("12","time steps", xml_data$spatialRepresentationInfo$MD_GridSpatialRepresentation$axisDimensionProperties$MD_Dimension$dimensionSize$Integer)) )
-  #  )))
-
-  # names(header_file) <- c("number", "variable", "value")
-
-  minLon <- as.numeric(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$geographicElement$EX_GeographicBoundingBox$westBoundLongitude$Decimal)
-  maxLon <- as.numeric(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$geographicElement$EX_GeographicBoundingBox$eastBoundLongitude$Decimal)
-  minLat <- as.numeric(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$geographicElement$EX_GeographicBoundingBox$southBoundLatitude$Decimal)
-  maxLat <- as.numeric(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$geographicElement$EX_GeographicBoundingBox$northBoundLatitude$Decimal)
-  minTime <- as.Date(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$temporalElement$EX_TemporalExtent$extent$TimePeriod$beginPosition)
-  maxTime <- as.Date(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$temporalElement$EX_TemporalExtent$extent$TimePeriod$endPosition)
-
-  xml_files <- list()
-  xml_files[[1]] <- ifelse(space[1] < minLon, minLon, space[1])
-  xml_files[[2]] <- ifelse(space[2] > maxLon, maxLon, space[2])
-  xml_files[[3]] <- ifelse(space[3] < minLat, minLat, space[3])
-  xml_files[[4]] <- ifelse(space[4] > maxLat, maxLat, space[4])
-  xml_files[[5]] <- as.Date(ifelse(time[1] < minTime, minTime, time[1]), origin = "1970-01-01T00:00:00Z")
-  xml_files[[6]] <- as.Date(ifelse(time[2] > maxTime, maxTime, time[2]), origin = "1970-01-01T00:00:00Z")
-
-  return(xml_files)
-
-  # xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$temporalElement$EX_TemporalExtent$extent$TimePeriod$description
-
-  # axisResolution = as.numeric(xml_data$spatialRepresentationInfo$MD_GridSpatialRepresentation$axisDimensionProperties$MD_Dimension$resolution$Measure$text) # 1.0
-  # #xml_data$contentInfo$MI_CoverageDescription$dimension$MD_Band$sequenceIdentifier$MemberName$aName$CharacterString # variable
-  # #xml_data$spatialRepresentationInfo$MD_GridSpatialRepresentation$axisDimensionProperties$MD_Dimension$dimensionSize$Integer
-  #
-  # # get time series
-  # TimePeriodDescription = xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$temporalElement$EX_TemporalExtent$extent$TimePeriod$description
-  # TimePeriodBegin = as.Date(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$temporalElement$EX_TemporalExtent$extent$TimePeriod$beginPosition)
-  # TimePeriodEnd = as.Date(xml_data$identificationInfo$MD_DataIdentification$extent$EX_Extent$temporalElement$EX_TemporalExtent$extent$TimePeriod$endPosition)
-  # TimePeriodInteger = xml_data$spatialRepresentationInfo$MD_GridSpatialRepresentation$axisDimensionProperties$MD_Dimension$dimensionSize$Integer # nsteps
-  # TimePeriodStep <- xml_data$identificationInfo$MD_DataIdentification$descriptiveKeywords$MD_Keywords$keyword$CharacterString
-  #
-}
+#' extract griddap 180_points
+#'
+#'
+#' @param space space
+#' @param time time
+#' @param this_dataset = this dataset
+#' @param this_var - this var
+#' @export
 
 
 extract_griddap_180_points <- function(space = NULL, time = NULL, this_dataset = NULL, this_var = NULL) {
@@ -400,6 +397,14 @@ extract_griddap_180_points <- function(space = NULL, time = NULL, this_dataset =
     )
   }
 }
+
+
+#' function to shift longitude
+#'
+#'
+#' @param longitude degrees
+#' @export
+
 
 shift_longitude <- function(longitude) { # rotate function
   ind <- which(longitude < 0)

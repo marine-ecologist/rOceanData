@@ -2,29 +2,28 @@
 % Please edit documentation in R/extract_ocean_data.R
 \name{extract_ocean_data}
 \alias{extract_ocean_data}
-\title{Extract ocean data}
+\title{Extract ocean data v0.1.0.9002}
 \usage{
 extract_ocean_data(
   dataset = "none",
-  filename = NULL,
   space = NULL,
   time = NULL,
-  save.output = FALSE,
+  save_file = NULL,
   ...
 )
 }
 \arguments{
 \item{dataset}{either "none", or in the format "data_id[dataval]"}
 
-\item{filename}{filename for saving}
-
 \item{space}{either a four length numeric vector (xmin, xmax, ymin, ymax) or a csv/xlsx of sites containing lon and lat columns}
 
 \item{time}{vector containing two time periods in YYYY-MM-DD format e.g. c("2003-01-01", "2024-01-01")}
 
-\item{save.output}{TRUE/FALSE for saving output to RDS based on filename.}
+\item{save_file}{TRUE/FALSE for saving output to RDS based on filename.}
 
 \item{...}{passes functions}
+
+\item{filename}{filename for saving}
 }
 \description{
 DEVELOPMENT function to extract ocean data from satellites

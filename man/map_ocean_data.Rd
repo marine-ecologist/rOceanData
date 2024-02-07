@@ -9,7 +9,7 @@ map_ocean_data(input, color = "SST", rows = 1, ...)
 \arguments{
 \item{input}{input}
 
-\item{color}{variable for color}
+\item{color}{variable for map color}
 
 \item{rows}{number of rows if faceted}
 

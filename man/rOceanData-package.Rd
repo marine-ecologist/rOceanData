@@ -8,6 +8,14 @@
 \description{
 The rOceanData package is a collection of "user friendly" functions that simplify downloading, extracting, and visualising global ocean satellite datasets (NOAA CRW, HadISST) for non-oceanographers. The functions facilitate downloading .netCDF files from THREDDS Data Servers, extracting, subsetting, and processing data to .csv and spatraster formats, and mapping global datasets using the terra package.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/marine-ecologist/rOceanData}
+  \item Report bugs at \url{https://github.com/marine-ecologist/rOceanData/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: George Roff \email{george.roff@csiro.au} (\href{https://orcid.org/0000-0002-2823-0575}{ORCID})
 
