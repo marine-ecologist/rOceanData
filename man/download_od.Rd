@@ -2,7 +2,7 @@
 % Please edit documentation in R/rOD.R
 \name{download_od}
 \alias{download_od}
-\title{tidy_OD
+\title{download_OD
 function to download data}
 \usage{
 download_od(data_id, data_var, space, time, ...)
@@ -17,6 +17,6 @@ download_od(data_id, data_var, space, time, ...)
 \item{time}{var}
 }
 \description{
-tidy_OD
+download_OD
 function to download data
 }

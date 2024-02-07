@@ -15,6 +15,8 @@ get_xml_headers(
 \arguments{
 \item{data_id}{1:52 common datasets}
 
+\item{data_var}{data var name}
+
 \item{burl}{base URL  "https://coastwatch.pfeg.noaa.gov/erddap/",}
 
 \item{space}{space}

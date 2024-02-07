@@ -321,6 +321,7 @@ tidy_od <- function(file.data, data_id, data_var, sites = FALSE, ...) {
 #'
 #'
 #' @param data_id 1:52 common datasets
+#' @param data_var data var name
 #' @param burl base URL  "https://coastwatch.pfeg.noaa.gov/erddap/",
 #' @param space space
 #' @param time time
@@ -382,7 +383,7 @@ get_xml_headers <- function(data_id, data_var, burl = "https://coastwatch.pfeg.n
 
 
 
-#' tidy_OD
+#' download_OD
 #' function to download data
 #'
 #' @param data_id id
@@ -397,7 +398,7 @@ download_od <- function(data_id, data_var, space, time, ...){
   info.erddap <- readLines(paste0("https://coastwatch.pfeg.noaa.gov/erddap/info/", data_id, "/index.html"))
 
   ##### get XML headers for download with space and time corrected for grid
-  xml_headers <- get_xml_headers(data_id, space=space, time=time) # get correct space and time from xml data
+  xml_headers <- get_xml_headers(data_id, data_var, space=space, time=time) # get correct space and time from xml data
   xml.space <- c(xml_headers[[1]], xml_headers[[2]], xml_headers[[3]], xml_headers[[4]]) # new space from xml
   xml.time <- c(xml_headers[[5]], xml_headers[[6]]) # new time from xml
 
