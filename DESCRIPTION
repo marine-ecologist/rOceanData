@@ -1,6 +1,6 @@
 Package: rOceanData
 Title: rOceanData: a package to simplify downloading, extracting, and visualising ocean satellite data
-Version: 0.1.0.9004
+Version: 0.1.0.9005
 Authors@R: 
     person("George", "Roff", , "george.roff@csiro.au", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2823-0575"))
