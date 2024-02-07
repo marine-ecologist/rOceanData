@@ -77,7 +77,7 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
 
   if (is.numeric(space) && length(space) == 4) {
 
-    xml_headers <- get_xml_headers(data_id, space=space, time=time) # get correct space and time from xml data
+    xml_headers <- get_xml_headers(data_id, data_var, space=space, time=time) # get correct space and time from xml data
     xml.space <- c(xml_headers[[1]], xml_headers[[2]], xml_headers[[3]], xml_headers[[4]]) # new space from xml
     xml.time <- c(xml_headers[[5]], xml_headers[[6]]) # new time from xml
 
@@ -101,12 +101,9 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
       dplyr::rename(parameter=1, output=2)
   } else {
 
-  xml_headers <- get_xml_headers(data_id, space=space, time=time) # get correct space and time from xml data
-  xml.space <- c(xml_headers[[1]], xml_headers[[2]], xml_headers[[3]], xml_headers[[4]]) # new space from xml
+  xml_headers <- get_xml_headers(data_id, data_var, space=space, time=time) # get correct space and time from xml data
+  #xml.space <- c(xml_headers[[1]], xml_headers[[2]], xml_headers[[3]], xml_headers[[4]]) # new space from xml
   xml.time <- c(xml_headers[[5]], xml_headers[[6]]) # new time from xml
-
-    xml_headers <- get_xml_headers(data_id, space=space, time=time) # get correct space and time from xml data
-    xml.time <- c(xml_headers[[5]], xml_headers[[6]]) # new time from xml
 
     data_info <- data.frame(
       name = xml_headers[[7]]$value[[1]],
