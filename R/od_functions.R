@@ -300,11 +300,19 @@ select_data_source <- function(dataset = "none") {
 
 myURL.3dim <- function(burl = "https://coastwatch.pfeg.noaa.gov/erddap/", data_id, ftype = ".nc", data_var, space, time) {
   url1 <- paste(burl, "griddap/", data_id, ftype, "?", data_var, sep = "")
-  urltime <- paste("[(", paste(new.time[1], "T00:00:00Z", sep = ""), "):1:(", paste(new.time[2], "T00:00:00Z", sep = ""), ")]", sep = "")
-  urllat <- paste("[(", new.space[3], "):1:(", new.space[4], ")]", sep = "")
-  urllon <- paste("[(", new.space[1], "):1:(", new.space[2], ")]", sep = "")
+  urltime <- paste("[(", paste(time[1], "T00:00:00Z", sep = ""), "):1:(", paste(time[2], "T00:00:00Z", sep = ""), ")]", sep = "")
+  urllat <- paste("[(", space[3], "):1:(", space[4], ")]", sep = "")
+  urllon <- paste("[(", space[1], "):1:(", space[2], ")]", sep = "")
   paste(url1, urltime, urllat, urllon, sep = "")
 }
+
+# myURL.3dim <- function(burl = "https://coastwatch.pfeg.noaa.gov/erddap/", data_id, ftype = ".nc", data_var, space, time) {
+#   url1 <- paste(burl, "griddap/", data_id, ftype, "?", data_var, sep = "")
+#   urltime <- paste("[(", paste(new.time[1], "T00:00:00Z", sep = ""), "):1:(", paste(new.time[2], "T00:00:00Z", sep = ""), ")]", sep = "")
+#   urllat <- paste("[(", new.space[3], "):1:(", new.space[4], ")]", sep = "")
+#   urllon <- paste("[(", new.space[1], "):1:(", new.space[2], ")]", sep = "")
+#   paste(url1, urltime, urllat, urllon, sep = "")
+# }
 
 
 #' myURL.4dim
@@ -324,15 +332,23 @@ myURL.3dim <- function(burl = "https://coastwatch.pfeg.noaa.gov/erddap/", data_i
 #' @export
 
 
+# myURL.4dim <- function(burl = "https://coastwatch.pfeg.noaa.gov/erddap/", data_id, ftype = ".nc", data_var, space, time) {
+#   url1 <- paste(burl, "griddap/", data_id, ftype, "?", data_var, sep = "")
+#   urltime <- paste("[(", paste(new.time[1], "T00:00:00Z", sep = ""), "):1:(", paste(new.time[2], "T00:00:00Z", sep = ""), ")]", sep = "")
+#   urlz <- paste("[(", 0.0, "):1:(", 0.0, ")]", sep = "")
+#   urllat <- paste("[(", new.space[3], "):1:(", new.space[4], ")]", sep = "")
+#   urllon <- paste("[(", new.space[1], "):1:(", new.space[2], ")]", sep = "")
+#   paste(url1, urltime, urlz, urllat, urllon, sep = "")
+# }
+
 myURL.4dim <- function(burl = "https://coastwatch.pfeg.noaa.gov/erddap/", data_id, ftype = ".nc", data_var, space, time) {
   url1 <- paste(burl, "griddap/", data_id, ftype, "?", data_var, sep = "")
-  urltime <- paste("[(", paste(new.time[1], "T00:00:00Z", sep = ""), "):1:(", paste(new.time[2], "T00:00:00Z", sep = ""), ")]", sep = "")
+  urltime <- paste("[(", paste(time[1], "T00:00:00Z", sep = ""), "):1:(", paste(time[2], "T00:00:00Z", sep = ""), ")]", sep = "")
   urlz <- paste("[(", 0.0, "):1:(", 0.0, ")]", sep = "")
-  urllat <- paste("[(", new.space[3], "):1:(", new.space[4], ")]", sep = "")
-  urllon <- paste("[(", new.space[1], "):1:(", new.space[2], ")]", sep = "")
+  urllat <- paste("[(", space[3], "):1:(", space[4], ")]", sep = "")
+  urllon <- paste("[(", space[1], "):1:(", space[2], ")]", sep = "")
   paste(url1, urltime, urlz, urllat, urllon, sep = "")
 }
-
 
 #' extract griddap 180_points
 #'
