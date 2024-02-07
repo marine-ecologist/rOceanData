@@ -6,6 +6,7 @@
 \usage{
 get_xml_headers(
   data_id,
+  data_var,
   burl = "https://coastwatch.pfeg.noaa.gov/erddap/",
   space,
   time

@@ -328,7 +328,7 @@ tidy_od <- function(file.data, data_id, data_var, sites = FALSE, ...) {
 #' @export
 
 
-get_xml_headers <- function(data_id, burl = "https://coastwatch.pfeg.noaa.gov/erddap/", space, time) {
+get_xml_headers <- function(data_id, data_var, burl = "https://coastwatch.pfeg.noaa.gov/erddap/", space, time) {
   erddap_xml_URL <- paste(burl, "metadata/iso19115/xml/", data_id, "_iso19115.xml", sep = "")
   erddap_xml_data <- XML::xmlParse(httr::content(httr::GET(erddap_xml_URL), "text"))
   xml_data <- XML::xmlToList(erddap_xml_data)
