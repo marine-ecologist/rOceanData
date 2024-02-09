@@ -15,7 +15,7 @@ distill_ocean_data <- function(input, var, group="all", ...){
 
   if (group=="all"){
 
-    quo_column <- enquo(var)
+#    quo_column <- enquo(var)
 
     output <- input$data |>
       group_by(longitude, latitude) |>

@@ -270,15 +270,15 @@ sourcedata <-
 #' @param file.data file
 #' @param data_id id
 #' @param data_var var
-#' @param sites sites or space? TRUE/FALSE
+#' @param sites sites or coords? TRUE=sites, FALSE=coords
 #' @export
 
-tidy_od <- function(file.data, data_id, data_var, sites = FALSE, ...) {
+tidy_od <- function(file.data, data_id, data_var, sites = FALSE, info=info.erddap, ...) {
 
-  info.erddap <- readLines(paste0("https://coastwatch.pfeg.noaa.gov/erddap/info/", data_id, "/index.html"))
 
-  if (isFALSE(sites)) {
-  if (any(grep("zlev", info.erddap)) == TRUE) {
+  #if (isFALSE(sites)) {
+  if (any(grep("zlev", info)) == TRUE)
+    {
     file.data <- file.data |>
       #    as.data.frame() |> # standardise longitude and latitude
       dplyr::rename_with(.col = grep(".*time.*", names(file.data), ignore.case = TRUE), ~"time") |>
@@ -287,7 +287,7 @@ tidy_od <- function(file.data, data_id, data_var, sites = FALSE, ...) {
       dplyr::select(-contains("zlev")) |>
       dplyr::select(time, longitude, latitude, {{ data_var }} := 4)|>
       janitor::clean_names()
-  } else if (any(grep("zlev", info.erddap)) == FALSE) {
+  } else if (any(grep("zlev", info)) == FALSE) {
     file.data <- file.data |>
       dplyr::rename_with(.col = grep(".*time.*", names(file.data), ignore.case = TRUE), ~"time") |>
       dplyr::rename_with(.col = grep(".*lon.*", names(file.data), ignore.case = TRUE), ~"longitude") |>
@@ -295,23 +295,23 @@ tidy_od <- function(file.data, data_id, data_var, sites = FALSE, ...) {
       dplyr::select(time, longitude, latitude, {{ data_var }} := 4) |>
       janitor::clean_names()
   }
-
-  } else if (!isFALSE(sites)) {
-    if (any(grep("zlev", info.erddap)) == TRUE) {
-      file.data <- file.data |>
-        select(-longitude_cell, -latitude_cell, -contains("zlev")) |>
-        dplyr::rename_at(2, ~ "time") |>
-        dplyr::rename_at(3, ~ "longitude_cell") |>
-        dplyr::rename_at(4, ~ "latitude_cell")
-    } else if (any(grep("zlev", info.erddap)) == FALSE) {
-      file.data <- file.data |>
-        select(-longitude_cell, -latitude_cell) |>
-        dplyr::rename_at(2, ~ "time") |>
-        dplyr::rename_at(3, ~ "longitude_cell") |>
-        dplyr::rename_at(4, ~ "latitude_cell")
-          }
-    #file.data <- left_join(file.data, coordlist, by = c("longitude", "latitude"))
-  }
+#
+#   } else if (!isFALSE(sites)) { # else IS sites not coords
+#     if (any(grep("zlev", info.erddap)) == TRUE) {
+#       file.data <- file.data |>
+#         dplyr::select(-longitude_cell, -latitude_cell, -contains("zlev")) |>
+#         dplyr::rename_at(2, ~ "time") |>
+#         dplyr::rename_at(3, ~ "longitude_cell") |>
+#         dplyr::rename_at(4, ~ "latitude_cell")
+#     } else if (any(grep("zlev", info.erddap)) == FALSE) {
+#       file.data <- file.data |>
+#         dplyr::select(-longitude_cell, -latitude_cell) |>
+#         dplyr::rename_at(2, ~ "time") |>
+#         dplyr::rename_at(3, ~ "longitude_cell") |>
+#         dplyr::rename_at(4, ~ "latitude_cell")
+#           }
+#     #file.data <- left_join(file.data, coordlist, by = c("longitude", "latitude"))
+#   }
   return(file.data)
 }
 
@@ -392,10 +392,10 @@ get_xml_headers <- function(data_id, data_var, burl = "https://coastwatch.pfeg.n
 #' @param time var
 #' @export
 
-download_od <- function(data_id, data_var, space, time, ...){
+download_od <- function(data_id, data_var, space, time, info.erddap=info.erddap, ...){
 
   ##### get URL
-  info.erddap <- readLines(paste0("https://coastwatch.pfeg.noaa.gov/erddap/info/", data_id, "/index.html"))
+  #info.erddap <- readLines(paste0("https://coastwatch.pfeg.noaa.gov/erddap/info/", data_id, "/index.html"))
 
   ##### get XML headers for download with space and time corrected for grid
   xml_headers <- get_xml_headers(data_id, data_var, space=space, time=time) # get correct space and time from xml data

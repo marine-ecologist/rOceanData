@@ -12,41 +12,33 @@
 #' @export
 
 
-map_ocean_data <- function(input, color="SST", rows=1, ...){
-
-  sf::sf_use_s2(FALSE)
+map_ocean_data <- function(input, pal="RdBu", ...){
 
   # initialise data
-  ne_coastline <- rnaturalearth::ne_countries(returnclass="sf", scale="large") |> dplyr::select(1)# |> sf::st_crs(4326)
+  # saveRDS(rnaturalearth::ne_countries(type = "countries", scale=10), "data/map_countries.RDS")
 
-  # create rast
-  metadata <- input$metadata # input data
-  input <- input$data # input data
-  input_wide <- input |>  tidyr::pivot_wider(values_from=names(input)[4], names_from=time)
-  terrafile <- terra::rast(input_wide, type="xyz", crs="EPSG:4326")
+  df <- input |> with(data) |> dplyr::arrange(time)
+  df <- input |>  dplyr::arrange(time)
 
+  lon_lims <- c(min(df$longitude), max(df$longitude))
+  lat_lims <- c(min(df$latitude), max(df$latitude))
 
-  # set colors
-  if (grepl("sst", names(input)[4], ignore.case = TRUE)) {
-    colorrast="RdBU"
-  }
+  df_sf <- stars::st_as_stars(df |> dplyr::select(-1))
 
-  else{
-    print("Choose one of the rColorBrewer palettes")
-    RColorBrewer::display.brewer.all()
-    colorrast <- readline(prompt = "Select a color palette:")
-  }
+  print(length(unique(df$time)))
+  if(length(unique(df$time))==1){
 
-  plot.title <- paste0(metadata[2,2], " ", metadata[3,2], " (", metadata[6,2],")")
+  p <- ggplot2::ggplot() + ggplot2::theme_bw() +
+    # ggplot2::geom_tile(data=df, ggplot2::aes(longitude, latitude, fill=par_einstein_m_2_day_1),
+    #                    width=1.2, height=1.2, linewidth=0) +
+    stars::geom_stars(data=df_sf) +
+    ggplot2::geom_sf(data=map_countries |> st_transform(), fill="darkolivegreen3") +
+    ggplot2::coord_sf(lon_lims, lat_lims, expand = FALSE) +
+    ggplot2::scale_fill_distiller(palette = pal)
 
-  p <- tmap::tm_shape(terrafile, is.master=TRUE) +
-    tmap::tm_raster(col = tm_shape_vars(), col.scale = tm_scale_intervals(values = colorrast),  col.free=FALSE) +
-    tm_facets_wrap(nrows=rows) +
-  tm_graticules(labels.pos=c("left", "bottom"), lwd=0.2) +
-  tmap::tm_shape(ne_coastline) +
-    tmap::tm_borders("black", lwd=1) +
-  tmap::tmap_options(check.and.fix=TRUE) #+
-  #tmap::tm_title_out("temp",  position = tm_pos_out("center", "top"))
+  } else {
+  print("test")
+}
 
   return(p)
 }

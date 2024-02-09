@@ -14,13 +14,44 @@
 
 #' @export
 
-extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save_file=NULL, ...) {
+extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, metadata=TRUE, save_file=NULL, ...) {
 
   ##### get source data
   sourcedata <- get_sourcedata()
   dataselect <- select_data_source(data=dataset)
   data_id <- dataselect[[1]][1]
   data_var <- dataselect[[2]][1]
+
+  ##### add checks
+  if (length(time) == 0)
+    stop("no time window, see ?extract_ocean_data")
+
+  ##### query ERDAPP
+  info.erddap <- readLines(paste0("https://coastwatch.pfeg.noaa.gov/erddap/info/", data_id, "/index.html"))
+  n <- 3  # Maximum number of retries
+  attempt <- 1  # Current attempt
+
+    while(attempt <= n) {
+      print("Can't connect to server, retrying:")
+      info.erddap <- readLines(paste0("https://coastwatch.pfeg.noaa.gov/erddap/info/", data_id, "/index.html"))
+
+        if(!is.character(tmp)) {
+          break  # If tmp is not a character, break out of the loop
+        }
+
+      attempt <- attempt + 1  # Increment the attempt counter
+    }
+
+    # Continue with the code after the loop
+    if(attempt > n) {
+
+      stop("Maximum number of retries reached (n=3), data not downloaded.")
+      print(tmp)
+      rm(attempt)
+    }
+  rm(attempt)
+
+  ##### check space structure
 
   if (is.numeric(space) && length(space) == 4) {
 
@@ -55,8 +86,33 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
     final.data <- NULL
     for (i in 1:nrow(coordlist)){
       coordstring <- c(coordlist[lon_columns][[1]][i],coordlist[lon_columns][[1]][i],coordlist[lat_columns][[1]][i],coordlist[lat_columns][[1]][i])
-      tmp <- download_od(data_id, data_var, coordstring, time) |>
-        tidy_od(data_id) |>
+      #tmp <- download_od(data_id, data_var, coordstring, time)
+
+      ##### add attempt loop
+      n <- 3  # Maximum number of retries
+      attempt <- 1  # Current attempt
+
+      while(attempt <= n) {
+        print("Download failed, retrying...")
+        tmp <- download_od(data_id, data_var, coordstring, time)
+
+        if(!is.character(tmp)) {
+          break  # If tmp is not a character, break out of the loop
+        }
+
+        attempt <- attempt + 1  # Increment the attempt counter
+      }
+
+      # Continue with the code after the loop
+      if(attempt > n) {
+
+        stop("Maximum number of retries reached (n=3), data not downloaded.")
+        print(tmp)
+      }
+
+      #####
+      tmp <- tmp |>
+        tidy_od(tmp, data_id, sites=TRUE) |>
         dplyr::mutate(site_lon=coordstring[1]) |>
         dplyr::mutate(site_lat=coordstring[3]) |>
         dplyr::mutate(site=coordlist$site[i]) |>
@@ -73,7 +129,7 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
 
 
   ##### setup metadata
-
+  if (isTrue(metadata)) {
 
   if (is.numeric(space) && length(space) == 4) {
 
@@ -97,7 +153,6 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
       url=sourcedata[dataset,9]
     ) |> t() |>
       as.data.frame() |>
-      tibble::rownames_to_column() |>
       dplyr::rename(parameter=1, output=2)
   } else {
 
@@ -119,9 +174,9 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
       url=sourcedata[dataset,9]
     ) |> t() |>
       as.data.frame() |>
-      tibble::rownames_to_column() |>
+      tibble::rownames_to_column() #|>
       dplyr::rename(parameter=1, output=2)
-
+print(data_info)
   }
 
   rm(dataset)
@@ -133,6 +188,15 @@ extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, save
     base::saveRDS(object=combined_list, file=paste0("",save_file, ".rds"))
   }
 
+  } else {
+
+    combined_list <- list(data = final.data)
+
+    if (!is.null(save_file)) {
+      base::saveRDS(object=combined_list, file=paste0("",save_file, ".rds"))
+    }
+
+  }
   return(combined_list)
 
 }
