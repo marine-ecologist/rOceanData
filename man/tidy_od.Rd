@@ -5,7 +5,7 @@
 \title{tidy_OD
 function to tidy output from erdapp}
 \usage{
-tidy_od(file.data, data_id, data_var, sites = FALSE, ...)
+tidy_od(file.data, data_id, data_var, sites = FALSE, info = info.erddap, ...)
 }
 \arguments{
 \item{file.data}{file}
@@ -14,7 +14,7 @@ tidy_od(file.data, data_id, data_var, sites = FALSE, ...)
 
 \item{data_var}{var}
 
-\item{sites}{sites or space? TRUE/FALSE}
+\item{sites}{sites or coords? TRUE=sites, FALSE=coords}
 }
 \description{
 tidy_OD

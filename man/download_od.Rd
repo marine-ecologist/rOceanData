@@ -5,7 +5,7 @@
 \title{download_OD
 function to download data}
 \usage{
-download_od(data_id, data_var, space, time, ...)
+download_od(data_id, data_var, space, time, info.erddap = info.erddap, ...)
 }
 \arguments{
 \item{data_id}{id}
