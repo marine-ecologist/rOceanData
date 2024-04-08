@@ -1,0 +1,39 @@
+---
+title: "Maldives - maximum annual Sea Surface Temperature"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Interactive maps of maximum SST (2002-present) from Ultra-high Resolution (MUR) SST Analysis fv04.1, Global, 0.01°
+
+```{r, warning=FALSE, message=FALSE, fig.width=9, fig.height=15}
+library(terra)
+library(tidyverse)
+
+mur_max <- rast("/Users/rof011/rOceanData/data/maldives/SST-MUR-annual_max.tiff")
+
+library(leaflet)
+
+num_colors <- 10  # Adjust the number of colors for granularity
+rdbu_palette <- colorNumeric(palette = "RdBu", domain = values(mur_max), n = num_colors)
+
+# Leaflet Map with Raster Layer
+leaflet() %>%
+  addTiles() %>%
+  setView(lat = 3.9, lng = 73.5, zoom = 8) %>%
+  addProviderTiles('Esri.WorldImagery', group = "Base Map", options=providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
+  addRasterImage(mur_max,group = "SST", colors = rdbu_palette, opacity = 0.8) %>%
+  addLegend(pal = rdbu_palette, values = values(mur_max), title = "Sea Surface Temperature", opacity = 0.8) |> 
+  addLayersControl(
+    baseGroups = c("Base Map"),
+    overlayGroups = c("SST"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+
+
+
+```

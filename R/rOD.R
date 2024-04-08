@@ -437,3 +437,111 @@ download_od <- function(data_id, data_var, space, time, info.erddap=info.erddap,
 
 
 
+wrap_griddap <- function(dataset, coords, time, ...) {
+  rerddap::griddap(
+    dataset,
+    longitude = coords[1:2],
+    latitude = coords[3:4],
+    time = time,
+    fmt = "csv",
+    url = "https://coastwatch.pfeg.noaa.gov/erddap/"
+  )
+}
+
+apply_offset_to_coords <- function(coords, offset_km) {
+  # Approximate conversion factors
+  km_per_degree_lat = 111
+  km_per_degree_lon = 111 # Simplified, actual value varies with latitude
+
+  # Convert offset from km to degrees
+  offset_lat = offset_km / km_per_degree_lat
+  offset_lon = offset_km / km_per_degree_lon
+
+  # Apply offset to coordinates
+  c(coords[1] - offset_lon, coords[2] + offset_lon, coords[3] - offset_lat, coords[4] + offset_lat)
+}
+
+
+# This modification introduces an `apply_offset_to_coords` function that calculates
+# the degree offset for both latitude and longitude based on the provided kilometer
+# value and applies it to the given coordinates. The main function,
+# `extract_ocean_data_optimized`, now accepts an `offset_km` parameter and applies
+# this offset to the coordinates before fetching the data.
+
+# Optimized function with offset option
+extract_ocean_data_optimized <- function(dataset, space, time, save_file, offset_km = 0, ...) {
+  # Common function to process coordinates with offset
+  process_coords <- function(coord_list) {
+    dat_dap <- lapply(1:nrow(coord_list), function(i) {
+      coords <- c(coord_list$lon[i], coord_list$lon[i], coord_list$lat[i], coord_list$lat[i])
+      # Apply offset if specified
+      if (offset_km > 0) {
+        coords <- apply_offset_to_coords(coords, offset_km)
+      }
+      fetch_data_for_site(dataset, coords, time)
+    })
+    do.call(rbind, dat_dap)
+  }
+
+  # Determine space type and process accordingly
+  if (is.numeric(space) && length(space) == 4) {
+    # Apply offset to space coordinates if specified
+    if (offset_km > 0) {
+      space <- apply_offset_to_coords(space, offset_km)
+    }
+    dat_dap <- fetch_data_for_site(dataset, space, time)
+  } else if (grepl("\\.xlsx$", space, ignore.case = TRUE)) {
+    coord_list <- readxl::read_excel(space)
+    dat_dap <- process_coords(coord_list)
+  } else if (grepl("\\.csv$", space, ignore.case = TRUE)) {
+    coord_list <- utils::read.csv(space)
+    dat_dap <- process_coords(coord_list)
+  } else {
+    stop("Coordinates must be in a vector (xmin, xmax, ymin, ymax) or as a file path to sites in either .xlsx, .xls, .csv format")
+  }
+
+  # Save file if requested
+  if (!is.null(save_file) && save_file) {
+    utils::write.csv(dat_dap, paste0(save_file, ".csv"), row.names = FALSE)
+  }
+
+  return(dat_dap)
+}
+
+
+
+generate_sites <- function(n, bounds, seed=NULL) {
+  if(length(bounds) != 4) {
+    stop("Bounds must be a vector of length 4: c(xmin, xmax, ymin, ymax)")
+  }
+  set.seed(seed)
+  sites <- data.frame(
+    site = paste0("Site_", sample(seq(1:100), n)),
+    longitude = round(runif(n, min = bounds[1], max = bounds[2]), 2),
+    latitude = round(runif(n, min = bounds[3], max = bounds[4]), 2)
+  )
+  set.seed(NULL)
+
+  return(sites)
+}
+
+# Example usage:
+# generate_sites(n = 5, bounds = c(113.6, 114.3, 21.87, 22.55))
+
+
+# Common function to process coordinates with offset
+extract_coords <- function(coord_list, offset_km=0) {
+  dat_dap <- lapply(1:nrow(coord_list), function(i) {
+    coords <- c(coord_list$lon[i], coord_list$lon[i], coord_list$lat[i], coord_list$lat[i])
+    # Apply offset if specified
+    if (offset_km > 0) {
+      coords <- apply_offset_to_coords(coords, offset_km)
+    }
+    coords
+    #fetch_data_for_site(dataset, coords, time)
+  })
+  do.call(rbind, dat_dap)
+}
+
+tmp <-  generate_sites(n = 5, bounds = c(113.6, 114.3, 21.87, 22.55))
+extract_coords(tmp)

@@ -1,0 +1,55 @@
+name: "rOceanData"
+output_dir: "_site"
+navbar:
+  title: "rOceanData"
+  icon: "images/coralseed.png"
+  type: default
+  left:
+    - text: "Interactive Ocean Temperatures"
+      icon: fa-cube
+      href: ocean_temperatures.html
+    - text: "Satellite Data"
+      icon: fa-gear
+      menu:
+        - text: "R Package"
+          href: rOceanData.html
+        - text: "Online tools"
+          href: ocean_data_download.html
+    - text: "Maldives Satellite data"
+      icon: fa-layer-group
+      menu:
+        - text: "Coral bleaching metrics"
+        - text: "- Sea Surface Temperature (MUR)"
+          href: maldives-sst.html
+        - text: "- Sea Surface Temperature anomalies (MUR)"
+          href: maldives-sst-anomalies.html
+        - text: "- Sea Surface Temperature maximum (MUR)"
+          href: maldives-sst-max.html
+        - text: "- Historical SST (HADISST)"
+          href: maldives-long-term-sst.html
+        - text: " - Marine heatwave categories (OISST)"
+          href: maldives-mhw-categories.html
+        - text: " - Marine intensity categories (OISST)"
+          href: maldives-mhw-intensity.html
+        - text: " - Marine heatwave variability max (OISST)"
+          href: maldives-mhw-variability.html
+        - text: " - Decadal warming rate (OISST)"
+          href: maldives-decadal-warming.html
+        - text: "Oceanographic data"
+        - text: " - Monsoonal productivity (Aqua-MODIS)"
+          href: maldives-productivity.html
+        - text: " - Particulate carbon (Aqua-MODIS)"
+          href: maldives-productivity-carbon.html
+        - text: " - Ocean Waves (WWW)"
+          href: maldives-ocean-waves.html
+output:
+  html_document:
+    theme: spacelab
+    highlight: textmate
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    code_folding: hide
+    css: roceandata.css
+    fig_caption: true

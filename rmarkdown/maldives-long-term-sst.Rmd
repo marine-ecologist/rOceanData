@@ -1,0 +1,52 @@
+---
+title: "Maldives - baseline Sea Surface Temperatures"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Interactive maps of Sea Surface Temperature for preindustrial (1870-1900), baseline (1900-1950), and modern (1951-present) time periods from HADISST Sea Surface Temperature (HADISST).
+
+```{r, warning=FALSE, message=FALSE, fig.width=9, fig.height=15}
+library(terra)
+library(tidyverse)
+
+hadisst_preindustrial <- rast("/Users/rof011/rOceanData/data/maldives/SST-HadISST-preindustrial-annual_mean.tiff")
+hadisst_baseline <- rast("/Users/rof011/rOceanData/data/maldives/SST-HadISST-baseline-annual_mean.tiff")
+hadisst_modern <- rast("/Users/rof011/rOceanData/data/maldives/SST-HadISST-modern-annual_mean.tiff")
+
+hadisst_map <- c(hadisst_preindustrial, hadisst_baseline, hadisst_modern)
+names(hadisst_map) <- c("preindustrial", "baseline", "modern")
+
+hadisst_map[hadisst_map <= 0] <- NA
+
+
+library(leaflet)
+
+num_colors <- 10  # Adjust the number of colors for granularity
+rdbu_palette <- colorNumeric(palette = "RdBu", domain = values(hadisst_map), n = num_colors)
+
+
+# Leaflet Map with Raster Layer
+leaflet() %>%
+  addTiles() %>%
+  setView(lat = 3.9, lng = 73.5, zoom = 8) %>%
+  addProviderTiles('Esri.WorldImagery', group = "Base Map", options=providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
+  addRasterImage(hadisst_preindustrial, group = "pre-industrial", colors = rdbu_palette, opacity = 0.8) %>%
+  addRasterImage(hadisst_baseline, group = "baseline", colors = rdbu_palette, opacity = 0.8) %>%
+  addRasterImage(hadisst_modern, group = "modern", colors = rdbu_palette, opacity = 0.8) %>%
+  addLegend(pal = rdbu_palette, values = values(hadisst_map), title = "HADISST SST", position = "topright", opacity=0.8) |> 
+  addLayersControl(
+    baseGroups = c("Base Map"),
+    overlayGroups = c("pre-industrial", "baseline", "modern"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) |> 
+  leaflet::hideGroup(c("baseline", "preindustrial")) |>
+    leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = FALSE)
+
+
+
+```

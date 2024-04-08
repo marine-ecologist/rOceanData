@@ -1,0 +1,28 @@
+---
+title: "download Ocean Data"
+output: 
+  html_document:
+    toc: FALSE
+date: "2024-01-22"
+---
+
+---
+<style>
+/* Set a custom width for the main content */
+.main-container {
+  max-width: 1500px; /* Adjust the width as needed */
+  margin: 0 auto;   /* Center the content */
+}
+</style>
+
+
+<iframe 
+  src="https://marine-ecologist.shinyapps.io/oceandata_access/" 
+  height="1200" 
+  width="1600" 
+  style="border:0;" 
+  scrolling="yes">
+</iframe>
+
+NOTE: development version, ubmitting downloading data requests not functional
+

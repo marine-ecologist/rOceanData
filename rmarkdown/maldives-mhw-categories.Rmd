@@ -1,0 +1,56 @@
+---
+title: "Maldives - Marine Heatwave Categories"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Interactive maps of marine heatwave frequency per category (1981-present) from OAA 1/4° Daily Optimum Interpolation Sea Surface Temperature (OISST).
+
+```{r, warning=FALSE, message=FALSE, fig.width=9, fig.height=15}
+library(terra)
+library(tidyverse)
+
+mhw_intensity_I <- rast("/Users/rof011/rOceanData/data/maldives/Bleaching-mhw_categories_spatial_I_moderate.tiff")
+mhw_intensity_II <- rast("/Users/rof011/rOceanData/data/maldives/Bleaching-mhw_categories_spatial_II_strong.tiff") 
+mhw_intensity_III <- rast("/Users/rof011/rOceanData/data/maldives/Bleaching-mhw_categories_spatial_III_severe.tiff") 
+mhw_intensity_IV <- rast("/Users/rof011/rOceanData/data/maldives/Bleaching-mhw_categories_spatial_IV_extreme.tiff")
+mhw_intensity <- c(mhw_intensity_I,mhw_intensity_II,mhw_intensity_III,mhw_intensity_IV)
+names(mhw_intensity) <- c("moderate", "strong", "severe", "extreme")
+
+mhw_intensity_I[mhw_intensity_I <= 0] <- NA
+mhw_intensity_II[mhw_intensity_II <= 0] <- NA
+mhw_intensity_III[mhw_intensity_III <= 0] <- NA
+mhw_intensity_IV[mhw_intensity_IV <= 0] <- NA
+
+
+library(leaflet)
+
+# Define a color palette
+palette_III <- colorNumeric(palette = "plasma", domain = c(1,  10), na.color="black")
+
+
+# Leaflet Map with Raster Layer
+leaflet() %>%
+  addTiles() %>%
+  setView(lat = 3.9, lng = 73.5, zoom = 8) %>%
+  addProviderTiles('Esri.WorldImagery', group = "Base Map", options=providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
+  #addRasterImage(mhw_intensity_I, group = "mhw_intensity_I", colors = palette_I, opacity = 0.8) %>%
+  #addRasterImage(mhw_intensity[[2]], group = "mhw_intensity_II", colors = palette_II, opacity = 0.8) %>%
+  addRasterImage(mhw_intensity[[3]], group = "mhw_intensity_III", colors = palette_III, opacity = 0.8) %>%
+  addRasterImage(mhw_intensity[[4]], group = "mhw_intensity_IV", colors = palette_III, opacity = 0.8) %>%
+  addLegend(pal = palette_III, values = seq(1:10), title = "Frequency of MHW", position = "topright", opacity=0.8) |> 
+  addLayersControl(
+    baseGroups = c("Base Map"),
+    overlayGroups = c("mhw_intensity_III", "mhw_intensity_IV"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) |> 
+  leaflet::hideGroup(c("mhw_intensity_IV")) |>
+    leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = FALSE)
+
+
+
+```

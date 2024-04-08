@@ -1,0 +1,48 @@
+---
+title: "Maldives - baseline Sea Surface Temperatures"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Interactive maps of mean particulate organic and inorganic carbon 1981-present (Aqua-MODIS).
+
+```{r, warning=FALSE, message=FALSE, fig.width=9, fig.height=15}
+library(terra)
+library(tidyverse)
+
+PIC <- rast("/Users/rof011/rOceanData/data/maldives/SST-HadISST-baseline-annual_mean.tiff")
+POC <- rast("/Users/rof011/rOceanData/data/maldives/SST-HadISST-modern-annual_mean.tiff")
+
+PICPOC <- c(PIC, POC)
+names(PICPOC) <- c("PIC", "POC")
+
+
+
+library(leaflet)
+
+num_colors <- 10  # Adjust the number of colors for granularity
+rdbu_palette <- colorNumeric(palette = "BrBG", reverse=TRUE, domain = values(PICPOC), na.color="transparent")
+
+# Leaflet Map with Raster Layer
+leaflet() %>%
+  addTiles() %>%
+  setView(lat = 3.9, lng = 73.5, zoom = 8) %>%
+  addProviderTiles('Esri.WorldImagery', group = "Base Map", options=providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
+  addRasterImage(PIC, group = "inorganic", colors = rdbu_palette, opacity = 0.8) %>%
+  addRasterImage(POC, group = "organic", colors = rdbu_palette, opacity = 0.8) %>%
+  addLegend(pal = rdbu_palette, values = values(PICPOC), title = "Particulate carbon", position = "topright", opacity=0.8) |> 
+  addLayersControl(
+    baseGroups = c("Base Map"),
+    overlayGroups = c("inorganic", "organic"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) |> 
+  leaflet::hideGroup( c("inorganic")) |>
+    leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = FALSE)
+
+
+
+```

@@ -1,0 +1,42 @@
+---
+title: "Maldives - productivity (chlorophyll)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Interactive maps of chlorophyll concentration (1981-present) for the NE Monsoonal and SW Monsoonal time periods from Aqua MODIS 
+
+```{r, warning=FALSE, message=FALSE, fig.width=8, fig.height=12}
+library(terra)
+library(tidyverse)
+
+chla_NEM <- rast("/Users/rof011/rOceanData/data/maldives/Productivity-Chla-NEM_monsoonal_mean.tiff")
+chla_SWM <- rast("/Users/rof011/rOceanData/data/maldives/Productivity-Chla-SWM_monsoonal_mean.tiff")
+
+chla <- c(chla_SWM, chla_NEM)
+
+library(leaflet)
+
+num_colors <- 10  # Adjust the number of colors for granularity
+rdbu_palette <- colorNumeric(palette = "BrBG", reverse=TRUE, domain = values(chla_SWM), na.color="transparent")
+
+# Leaflet Map with Raster Layer
+
+# Leaflet Map with Raster Layer
+leaflet() %>%
+  addTiles() %>%
+  setView(lat = 4.5, lng = 73.5, zoom = 8) %>%
+  addProviderTiles('Esri.WorldImagery', group = "Base Map", options=providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
+  addRasterImage(chla_NEM,group = "NE Monsoon", colors = rdbu_palette, opacity = 0.8) %>%
+  addRasterImage(chla_SWM,group = "SW Monsoon", colors = rdbu_palette, opacity = 0.8) %>%
+  addLegend(pal = rdbu_palette, values = values(chla_NEM), title = "Chl a", opacity = 0.8) |> 
+  addLayersControl(
+    baseGroups = c("Base Map"),
+    overlayGroups = c("NW Monsoon", "SW Monsoon"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```

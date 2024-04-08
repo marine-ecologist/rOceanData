@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Maldives - baseline Sea Surface Temperatures</title>
+
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/spacelab.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="site_libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="site_libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="site_libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="site_libs/leaflet-binding-2.2.2.9000/leaflet.js"></script>
+<script src="site_libs/leaflet-providers-2.0.0/leaflet-providers_2.0.0.js"></script>
+<script src="site_libs/leaflet-providers-plugin-2.2.2.9000/leaflet-providers-plugin.js"></script>
+<link href="site_libs/lfx-fullscreen-1.0.2/lfx-fullscreen-prod.css" rel="stylesheet" />
+<script src="site_libs/lfx-fullscreen-1.0.2/lfx-fullscreen-prod.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="roceandata.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">rOceanData</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="ocean_temperatures.html">
+    <span class="fa fa-cube"></span>
+     
+    Interactive Ocean Temperatures
+  </a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    Satellite Data
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="rOceanData.html">R Package</a>
+    </li>
+    <li>
+      <a href="ocean_data_download.html">Online tools</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-layer-group"></span>
+     
+    Maldives Satellite data
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Coral bleaching metrics</li>
+    <li>
+      <a href="maldives-sst.html">- Sea Surface Temperature (MUR)</a>
+    </li>
+    <li>
+      <a href="maldives-sst-anomalies.html">- Sea Surface Temperature anomalies (MUR)</a>
+    </li>
+    <li>
+      <a href="maldives-sst-max.html">- Sea Surface Temperature maximum (MUR)</a>
+    </li>
+    <li>
+      <a href="maldives-long-term-sst.html">- Historical SST (HADISST)</a>
+    </li>
+    <li>
+      <a href="maldives-mhw-categories.html"> - Marine heatwave categories (OISST)</a>
+    </li>
+    <li>
+      <a href="maldives-mhw-intensity.html"> - Marine intensity categories (OISST)</a>
+    </li>
+    <li>
+      <a href="maldives-mhw-variability.html"> - Marine heatwave variability max (OISST)</a>
+    </li>
+    <li>
+      <a href="maldives-decadal-warming.html"> - Decadal warming rate (OISST)</a>
+    </li>
+    <li class="dropdown-header">Oceanographic data</li>
+    <li>
+      <a href="maldives-productivity.html"> - Monsoonal productivity (Aqua-MODIS)</a>
+    </li>
+    <li>
+      <a href="maldives-productivity-carbon.html"> - Particulate carbon (Aqua-MODIS)</a>
+    </li>
+    <li>
+      <a href="maldives-ocean-waves.html"> - Ocean Waves (WWW)</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Maldives - baseline Sea Surface
+Temperatures</h1>
+
+</div>
+
+
+<p>Interactive maps of Sea Surface Temperature for preindustrial
+(1870-1900), baseline (1900-1950), and modern (1951-present) time
+periods from HADISST Sea Surface Temperature (HADISST).</p>
+<pre class="r"><code>library(terra)
+library(tidyverse)
+
+hadisst_preindustrial &lt;- rast(&quot;/Users/rof011/rOceanData/data/maldives/SST-HadISST-preindustrial-annual_mean.tiff&quot;)
+hadisst_baseline &lt;- rast(&quot;/Users/rof011/rOceanData/data/maldives/SST-HadISST-baseline-annual_mean.tiff&quot;)
+hadisst_modern &lt;- rast(&quot;/Users/rof011/rOceanData/data/maldives/SST-HadISST-modern-annual_mean.tiff&quot;)
+
+hadisst_map &lt;- c(hadisst_preindustrial, hadisst_baseline, hadisst_modern)
+names(hadisst_map) &lt;- c(&quot;preindustrial&quot;, &quot;baseline&quot;, &quot;modern&quot;)
+
+hadisst_map[hadisst_map &lt;= 0] &lt;- NA
+
+
+library(leaflet)
+
+num_colors &lt;- 10  # Adjust the number of colors for granularity
+rdbu_palette &lt;- colorNumeric(palette = &quot;RdBu&quot;, domain = values(hadisst_map), n = num_colors)
+
+
+# Leaflet Map with Raster Layer
+leaflet() %&gt;%
+  addTiles() %&gt;%
+  setView(lat = 3.9, lng = 73.5, zoom = 8) %&gt;%
+  addProviderTiles(&#39;Esri.WorldImagery&#39;, group = &quot;Base Map&quot;, options=providerTileOptions(maxNativeZoom=18,maxZoom=100)) |&gt;
+  addRasterImage(hadisst_preindustrial, group = &quot;pre-industrial&quot;, colors = rdbu_palette, opacity = 0.8) %&gt;%
+  addRasterImage(hadisst_baseline, group = &quot;baseline&quot;, colors = rdbu_palette, opacity = 0.8) %&gt;%
+  addRasterImage(hadisst_modern, group = &quot;modern&quot;, colors = rdbu_palette, opacity = 0.8) %&gt;%
+  addLegend(pal = rdbu_palette, values = values(hadisst_map), title = &quot;HADISST SST&quot;, position = &quot;topright&quot;, opacity=0.8) |&gt; 
+  addLayersControl(
+    baseGroups = c(&quot;Base Map&quot;),
+    overlayGroups = c(&quot;pre-industrial&quot;, &quot;baseline&quot;, &quot;modern&quot;),
+    options = layersControlOptions(collapsed = FALSE)
+  ) |&gt; 
+  leaflet::hideGroup(c(&quot;baseline&quot;, &quot;preindustrial&quot;)) |&gt;
+    leaflet.extras::addFullscreenControl(position = &quot;topleft&quot;, pseudoFullscreen = FALSE)</code></pre>
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-c95e55a1680863356ec0" style="width:864px;height:1440px;"></div>
+<script type="application/json" data-for="htmlwidget-c95e55a1680863356ec0">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"fullscreenControl":{"position":"topleft","pseudoFullscreen":false}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery",null,"Base Map",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"maxNativeZoom":18,"maxZoom":100}]},{"method":"addRasterImage","args":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAICAYAAADTLS5CAAAAOElEQVQImQXBwRVAUBRDwZsIfahR7Raf48WMru3smuIgIshu0TE5LACyGwrECAFeU54pub/hnfIDK5ITnySyxVwAAAAASUVORK5CYII=",[[5.499999999999988,72.5],[-1.499999999999996,74.5]],null,"pre-industrial",{"tileSize":256,"zIndex":1,"minZoom":0,"opacity":0.8}]},{"method":"addRasterImage","args":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAICAYAAADTLS5CAAAATElEQVQImQXBXQpAQBiG0eebXs0oQ0lp4lZuXVmA5dh/yfg9x8K6f/UwobRshCBURY8vC9SNNeYMzSmS7xf1Tcl5PaiNniPfODnDgB+PxQyjXYEcCgAAAABJRU5ErkJggg==",[[5.499999999999988,72.5],[-1.499999999999996,74.5]],null,"baseline",{"tileSize":256,"zIndex":1,"minZoom":0,"opacity":0.8}]},{"method":"addRasterImage","args":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAICAYAAADTLS5CAAAAQklEQVQImQXBuw2AMBBEwXfr5SPLAf1HNEJRyAiJwGdm4rvOmc+N1Q4AHLWhmTi8wl4RxcSyISQoRmRCDjzfDjn4AWt5EZrnGCNGAAAAAElFTkSuQmCC",[[5.499999999999988,72.5],[-1.499999999999996,74.5]],null,"modern",{"tileSize":256,"zIndex":1,"minZoom":0,"opacity":0.8}]},{"method":"addLegend","args":[{"colors":["#67001F , #9F1228 7.60330888633688%, #CF5446 17.957907189629%, #EF9A79 28.3125054929214%, #FCD4BE 38.6671037962135%, #F8F4F2 49.0217020995057%, #D3E6F0 59.3763004027979%, #94C6DE 69.73089870609%, #4393C3 80.0854970093824%, #2063A9 90.4400953126745%, #053061 "],"labels":["28.4","28.6","28.8","29.0","29.2","29.4","29.6","29.8","30.0"],"na_color":null,"na_label":"NA","opacity":0.8,"position":"topright","type":"numeric","title":"HADISST SST","extra":{"p_1":0.07603308886336882,"p_n":0.9044009531267454},"layerId":null,"className":"info legend","group":null}]},{"method":"addLayersControl","args":["Base Map",["pre-industrial","baseline","modern"],{"collapsed":false,"autoZIndex":true,"position":"topright"}]},{"method":"hideGroup","args":[["baseline","preindustrial"]]}],"setView":[[3.9,73.5],8,[]],"limits":{"lat":[-1.499999999999996,5.499999999999988],"lng":[72.5,74.5]}},"evals":[],"jsHooks":[]}</script>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = false;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -51,4 +51,7 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
-datasets
+
+datasets/
+outputs/
+code/

@@ -1,0 +1,38 @@
+---
+title: "Maldives - decadal warming rate"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Interactive maps of mean decadal warming rate anomalies (1985-present) from OISST 
+
+```{r, warning=FALSE, message=FALSE, fig.width=8, fig.height=12}
+library(terra)
+library(tidyverse)
+
+OISST_warming_mean <- rast("/Users/rof011/rOceanData/data/maldives/SST-OISST-decadalrate.tiff")
+
+library(leaflet)
+
+num_colors <- 10  # Adjust the number of colors for granularity
+rdbu_palette <- colorNumeric(palette = "RdBu", domain = values(OISST_warming_mean), n = num_colors)
+
+# Leaflet Map with Raster Layer
+
+# Leaflet Map with Raster Layer
+leaflet() %>%
+  addTiles() %>%
+  setView(lat = 4.5, lng = 73.5, zoom = 8) %>%
+  addProviderTiles('Esri.WorldImagery', group = "Base Map", options=providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
+  addRasterImage(OISST_warming_mean,group = "SST anomaly", colors = rdbu_palette, opacity = 0.8) %>%
+  addLegend(pal = rdbu_palette, values = values(OISST_warming_mean), title = "SST anomalies", opacity = 0.8) |> 
+  addLayersControl(
+    baseGroups = c("Base Map"),
+    overlayGroups = c("SST anomaly"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```

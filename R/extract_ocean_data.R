@@ -1,5 +1,6 @@
 
-#' Extract ocean data v0.1.0.9002
+#' Extract ocean data v0.1.0.9004
+#' deployApp("/Users/rof011/rOceanData/apps/ocean_data_viewer/ocean_data_viewer_0.9004.R")
 #'
 #' DEVELOPMENT function to extract ocean data from satellites
 #'
@@ -11,193 +12,89 @@
 #' @param time vector containing two time periods in YYYY-MM-DD format e.g. c("2003-01-01", "2024-01-01")
 #' @param save_file TRUE/FALSE for saving output to RDS based on filename.
 #' @param ... passes functions
-
 #' @export
 
-extract_ocean_data <- function(dataset = "none", space = NULL, time = NULL, metadata=TRUE, save_file=NULL, ...) {
 
-  ##### get source data
-  sourcedata <- get_sourcedata()
-  dataselect <- select_data_source(data=dataset)
-  data_id <- dataselect[[1]][1]
-  data_var <- dataselect[[2]][1]
+extract_ocean_data <- function(dataset, space, time, save_file, offset_km = 0, ...) {
 
-  ##### add checks
-  if (length(time) == 0)
-    stop("no time window, see ?extract_ocean_data")
+#   # Determine space type and process accordingly
+#   if (is.numeric(space) && length(space) == 4) {
+#     # Apply offset to space coordinates if specified
+#     if (offset_km > 0) {
+#       space <- apply_offset_to_coords(space, offset_km)
+#     }
+#     dat_dap <- fetch_data_for_site(dataset, space, time)
+#   } else if (grepl("\\.(xlsx|csv)$", space, ignore.case = TRUE)) {
+#     coord_list <- if (grepl("\\.xlsx$", space, ignore.case = TRUE)) {
+#       readxl::read_excel(space)
+#     } else {
+#       read.csv(space)
+#     }
+#     dat_dap <- extract_coords(coord_list)
+#   } else if (is.data.frame(space)) {
+#     dat_dap <- extract_coords(space = space)
+#   } else {
+#     stop("Coordinates must be in a vector (xmin, xmax, ymin, ymax) or as a file path to sites in either .xlsx, .csv format, or a data frame.")
+#   }
 
-  ##### query ERDAPP
-  info.erddap <- readLines(paste0("https://coastwatch.pfeg.noaa.gov/erddap/info/", data_id, "/index.html"))
-  n <- 3  # Maximum number of retries
-  attempt <- 1  # Current attempt
+    # Check if input is a numeric vector of length 4 (e.g., coordinates)
+    if (is.numeric(space) && length(space) == 4) {
+      # if (offset_km > 0) {
+      #   input <- apply_offset_to_coords(space, offset_km)
+      # }
+      output <- wrap_griddap(dataset, space, time)
 
-    while(attempt <= n) {
-      print("Can't connect to server, retrying:")
-      info.erddap <- readLines(paste0("https://coastwatch.pfeg.noaa.gov/erddap/info/", data_id, "/index.html"))
 
-        if(!is.character(tmp)) {
-          break  # If tmp is not a character, break out of the loop
-        }
+      # Check if input is a path to a CSV or Excel file
+    } else if (is.character(space) && grepl("\\.(xlsx|csv)$", input, ignore.case = TRUE)) {
+      if (grepl("\\.xlsx$", space, ignore.case = TRUE)) {
+        coord_list <- readxl::read_excel(space)
+      } else {  # For CSV
+        coord_list <- read.csv(space)
+      }
 
-      attempt <- attempt + 1  # Increment the attempt counter
-    }
+      dat_dap <- extract_coords(coord_list)
 
-    # Continue with the code after the loop
-    if(attempt > n) {
+      results <- list()
+      for (i in 1:nrow(dat_dap)) {
+        coords <- c(dat_dap[i, 2], dat_dap[i, 2], dat_dap[i, 3], dat_dap[i, 3])
+        results[[i]] <- wrap_griddap(dataset, coords, time) |>
+          as.data.frame() |>
+          dplyr::rename(site_longitude=longitude) |>
+          dplyr::rename(site_latitude=latitude) |>
+          dplyr::mutate(site = space[i,1]) |>
+          dplyr::mutate(longitude = space[i,2]) |>
+          dplyr::mutate(latitude = space[i,3])
+      }
+      output <- do.call(rbind, results)
 
-      stop("Maximum number of retries reached (n=3), data not downloaded.")
-      print(tmp)
-      rm(attempt)
-    }
-  rm(attempt)
+    } else if (is.data.frame(space)) {
+      dat_dap <- extract_coords(space)
+      results <- list()
+      for (i in 1:nrow(dat_dap)) {
+        print(paste0("Extracting ", space[i,1], " (", space[i,2], " / ", space[i,3], ")"))
+        coords <- c(dat_dap[i, 2], dat_dap[i, 2], dat_dap[i, 3], dat_dap[i, 3])
+        results[[i]] <- wrap_griddap(dataset, coords, time) |>
+          as.data.frame() |>
+          dplyr::rename(site_longitude=longitude) |>
+          dplyr::rename(site_latitude=latitude) |>
+          dplyr::mutate(site = space[i,1]) |>
+          dplyr::mutate(longitude = space[i,2]) |>
+          dplyr::mutate(latitude = space[i,3]) #|>
+          #dplyr::relocate(time=1, site=2, site_longitude=3,
+          #         site_latitude=4, longitude=5, latitude=6)
+      }
+      output <- do.call(rbind, results)
 
-  ##### check space structure
-
-  if (is.numeric(space) && length(space) == 4) {
-
-    start_time <- Sys.time()
-    final.data <- download_od(data_id, data_var, space, time) |>
-                    tidy_od(data_id)
-    end_time <- Sys.time()
-
-  } else {
-
-    if (grepl(".*xlsx.*", space) == TRUE) {
-    coordlist <- readxl::read_excel(space)
-    } else if (grepl(".*csv.*", space) == TRUE) {
-        coordlist <- read.csv(space)
     } else {
-      (stop(print("coordinates must be in a vector (xmin, xmax, ymin, ymax) or as a file path to sites in either .xlsx, .xls, .csv format")))
+      stop("Invalid input type. Input must be a numeric vector (coordinates), a path to a CSV/XLS file, or an existing data.frame.")
     }
 
-    lon_columns <- grep("^lon", names(coordlist), value = TRUE, ignore.case = TRUE)
-    lat_columns <- grep("^lat", names(coordlist), value = TRUE, ignore.case = TRUE)
-    coordlist <- coordlist %>% dplyr::mutate(longitude_cell = .[[lon_columns]], latitude_cell = .[[lat_columns]])
 
-    if(any(coordlist$longitude_cell > 180 | coordlist$longitude_cell < -180)) {
-      stop("Longitude should be between -180 and 80 degrees")
-    }
-
-    if(any(coordlist$latitude_cell > 90 | coordlist$latitude_cell < -90)) {
-      stop("Latitude should be between -90 and 90 degrees")
-    }
-
-    start_time <- Sys.time()
-    final.data <- NULL
-    for (i in 1:nrow(coordlist)){
-      coordstring <- c(coordlist[lon_columns][[1]][i],coordlist[lon_columns][[1]][i],coordlist[lat_columns][[1]][i],coordlist[lat_columns][[1]][i])
-      #tmp <- download_od(data_id, data_var, coordstring, time)
-
-      ##### add attempt loop
-      n <- 3  # Maximum number of retries
-      attempt <- 1  # Current attempt
-
-      while(attempt <= n) {
-        print("Download failed, retrying...")
-        tmp <- download_od(data_id, data_var, coordstring, time)
-
-        if(!is.character(tmp)) {
-          break  # If tmp is not a character, break out of the loop
-        }
-
-        attempt <- attempt + 1  # Increment the attempt counter
-      }
-
-      # Continue with the code after the loop
-      if(attempt > n) {
-
-        stop("Maximum number of retries reached (n=3), data not downloaded.")
-        print(tmp)
-      }
-
-      #####
-      tmp <- tmp |>
-        tidy_od(tmp, data_id, sites=TRUE) |>
-        dplyr::mutate(site_lon=coordstring[1]) |>
-        dplyr::mutate(site_lat=coordstring[3]) |>
-        dplyr::mutate(site=coordlist$site[i]) |>
-        dplyr::mutate(date=as.Date(time)) |>
-        dplyr::select(-time)
-      final.data[[i]] <- tmp
-    }
-
-    final.data <- do.call(rbind,final.data)
-    end_time <- Sys.time()
-
+  # Save file if requested
+  if (!save_file=="") {
+    utils::write.csv(output, paste0(save_file, ".csv"), row.names = FALSE)
   }
 
-
-
-  ##### setup metadata
-  if (isTrue(metadata)) {
-
-  if (is.numeric(space) && length(space) == 4) {
-
-    xml_headers <- get_xml_headers(data_id, data_var, space=space, time=time) # get correct space and time from xml data
-    xml.space <- c(xml_headers[[1]], xml_headers[[2]], xml_headers[[3]], xml_headers[[4]]) # new space from xml
-    xml.time <- c(xml_headers[[5]], xml_headers[[6]]) # new time from xml
-
-
-    data_info <- data.frame(
-      name = xml_headers[[7]]$value[[1]],
-      dataset=data_id,
-      var=data_var,
-      longitude=paste0(xml.space[1], "° to ", xml.space[2],"°"),
-      latitude=paste0(xml.space[3], "° to ",  xml.space[4],"°"),
-      timeseries=paste0(xml.time[1], " to ", xml.time[2]),
-      resolution=paste0(sourcedata[dataset,6], " timesteps"),
-      timesteps=length(unique(final.data$time)),
-      downloaded_date=Sys.time(),
-      download.duration=round(end_time - start_time, 2),
-      file.size=pryr::object_size(final.data, units="b"),
-      url=sourcedata[dataset,9]
-    ) |> t() |>
-      as.data.frame() |>
-      dplyr::rename(parameter=1, output=2)
-  } else {
-
-  xml_headers <- get_xml_headers(data_id, data_var, space=space, time=time) # get correct space and time from xml data
-  #xml.space <- c(xml_headers[[1]], xml_headers[[2]], xml_headers[[3]], xml_headers[[4]]) # new space from xml
-  xml.time <- c(xml_headers[[5]], xml_headers[[6]]) # new time from xml
-
-    data_info <- data.frame(
-      name = xml_headers[[7]]$value[[1]],
-      dataset=data_id,
-      var=data_var,
-      space = paste0(nrow(space), "sites"),
-      timeseries=paste0(xml.time[1], " to ", xml.time[2]),
-      resolution=paste0(sourcedata[dataset,6], " timesteps"),
-      #timesteps=length(unique(final.data$time)),
-      downloaded_date=Sys.time(),
-      download.duration=round(end_time - start_time, 2),
-      file.size=pryr::object_size(final.data, units="b"),
-      url=sourcedata[dataset,9]
-    ) |> t() |>
-      as.data.frame() |>
-      tibble::rownames_to_column() #|>
-      dplyr::rename(parameter=1, output=2)
-print(data_info)
-  }
-
-  rm(dataset)
-  rm(sourcedata)
-
-  combined_list <- list(data = final.data, metadata = data_info)
-
-  if (!is.null(save_file)) {
-    base::saveRDS(object=combined_list, file=paste0("",save_file, ".rds"))
-  }
-
-  } else {
-
-    combined_list <- list(data = final.data)
-
-    if (!is.null(save_file)) {
-      base::saveRDS(object=combined_list, file=paste0("",save_file, ".rds"))
-    }
-
-  }
-  return(combined_list)
-
+  return(output)
 }
-
