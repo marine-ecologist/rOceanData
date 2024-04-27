@@ -7,44 +7,86 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+**Thermal stress, coral bleaching, and satellite metrics**
+
+<https://marine-ecologist.github.io/rOceanData/index.html>
+
 The CORDAP project aims to rapidly restore resilient, self-perpetuating breeding reef-coral populations across four regions of the Maldives. As part of the project**, a local- stakeholder led and co-designed decision-framework** will be used for selecting reefs for spawn collection. In an era of climate change and increasing ocean temperatures, an important consideration in selecting i) which reefs to collect spawn and ii) which reefs to target reseeding is the thermal history or reefs at regional scales. Can we identify areas of the Maldives that have experienced low thermal stress and during the past coral bleaching events in 1998, 2016, 2017, and 2022? Are there reefs that have experienced consistent heat stress but still exhibit high levels of coral cover?
 
 The first step of any analysis is to extract the relevant datasets. Accessing satellite data and extracting the areas of interest can be... complicated. To make this more straight forward, we are developing tools to facilitate extracting, mapping, and analysis of a broad range of satellite datasets for thermal stress (e.g. sea surface temperatures [SST], anomalies, degree heating weeks) and other environmental data (e.g. chlorophyll, photosynthetically active radiation, ocean waves).
 
 **1. Realtime access to current ocean temperatures**
 
-The 2024 global mass coral bleaching event has decimated reefs across the globe, and warming is predicted for the Maldives in the next 4-8 weeks. To facilitate mapping of SST and DHW in realtime as the event unfolds, we have developed an interactive map ("ocean data viewer") that allows real-time access to sea surface temperatures, anomalies, and degree heating weeks (via NOAA CRW) across the Maldives. To view past data, the map viewer gives access to daily data from 1985 to 2024, allowing comparisons of the current conditions with previous mass bleaching events. The map is in development and feedback or improvements would be welcome!
+The 2024 global mass coral bleaching event has decimated reefs across the globe, and warming is predicted for the Maldives in the next 4-8 weeks. To facilitate mapping of SST and DHW in realtime as the event unfolds, we have developed an interactive map (\"ocean data viewer\") that allows real-time access to sea surface temperatures, anomalies, and degree heating weeks (via NOAA CRW) across the Maldives. To view past data, the map viewer gives access to daily data from 1985 to 2024, allowing comparisons of the current conditions with previous mass bleaching events. The map is in development and feedback or improvements would be welcome!
 
 <https://marine-ecologist.shinyapps.io/oceandata/>
 
+<https://marine-ecologist.github.io/rOceanData/ocean_temperatures.html>
+
 **2. Downloading and visualising satellite datasets**
 
-We are developing an R package called "rOceanData" to make downloading and mapping satellite data as simple as possible to enable access to all stakeholders. The package is currently in development, but the workflow and examples for the Maldives are here:
+We are developing an R package called \"rOceanData\" to make downloading and mapping satellite data as simple as possible to enable access to all stakeholders. The package is currently in development, but the workflow and examples for the Maldives are here:
 
-If you'd be interested in testing the package before it's released to make sure it stays "user-friendly" then please get in touch, and we will work with interested groups to learn and extract datasets using R in later steps.
+<https://marine-ecologist.github.io/rOceanData/rOceanData.html>
+
+<https://marine-ecologist.github.io/rOceanData/ocean_data_download.html>
+
+If you\'d be interested in testing the package before it\'s released to make sure it stays \"user-friendly\" then please get in touch, and we will work with interested groups to learn and extract datasets using R in later steps.
 
 **3) Thermal stress datasets for the Maldives**
 
-A (very) wide range of datasets are available for coral bleaching metrics from satellite sea surface temperature data (e.g. degree heating weeks, temperature anomalies, marine heatwaves). To give an idea of available datasets and how interactive mapping can help understand spatial patterns in heat stress and environmental variability, here are examples from a previous project:
+A (very) wide range of datasets are available for coral bleaching metrics from satellite sea surface temperature data (e.g. degree heating weeks, temperature anomalies, marine heatwaves). To give an idea of available datasets and how interactive mapping can help understand spatial patterns in heat stress and environmental variability, examples are currently uploaded to:
 
-·       Sea Surface Temperature (MUR)
+<https://marine-ecologist.github.io/rOceanData/> (see \"Maldives Satellite Data\" in the menu)
 
-·       Sea Surface Temperature anomalies (MUR)
+-   Sea Surface Temperature (MUR)
+-    Surface Temperature anomalies (MUR)
+-    Surface Temperature maximum (MUR)
+-    SST (HADISST)
+-    Marine heatwave categories (OISST)
+-    Marine intensity categories (OISST)
+-    Marine intensity categories max (OISST)
+-    Decadal warming rate (OISST)
+-    Monsoonal productivity (Aqua-MODIS)
+-   Particulate carbon (Aqua-MODIS)
+-   Ocean Waves (WWW)
 
-·       Sea Surface Temperature maximum (MUR)
+**Feedback and questions for project stakeholders**
 
-·       Historical SST (HADISST)
+1) What are your priorities under the CORDAP project and other coral reef projects?
 
-·       Marine heatwave categories (OISST)
+a)    Accessing and downloading data
 
-·       Marine intensity categories (OISST)
+b)    Analysing data for specific sites (e.g. monthly mean, maximum summer)
 
-·       Marine intensity categories max (OISST)
+c)     Creating maps for print (publications, newsletters etc)
 
-·       Decadal warming rate (OISST)
+d)    Creating interactive maps of data for web pages
 
-·       Monsoonal productivity (Aqua-MODIS)
+2) What data interests you?
 
-·       Particulate carbon (Aqua-MODIS)
+a)    Coral bleaching metrics
 
-·       Ocean Waves (WWW)
+b)    Sea surface temperature
+
+c)     Upwelling data (chlorophyll)
+
+d)    Other (specify!)
+
+3) What is your level of experience with analysing data?
+
+4) What software do you use for data-analysis?
+
+5) How do you currently access and download satellite data?
+
+6) How do you analyse and map satellite data?
+
+7) What would make the process of mapping and analysing data simpler?
+
+4) What software do you use for data-analysis?
+
+5) How do you currently access and download satellite data?
+
+6) How do you analyse and map satellite data?
+
+7) What would make the process of mapping and analysing data simpler?
