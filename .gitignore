@@ -39,8 +39,6 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# pkgdown site
-docs/
 
 # data examples
 datasets/WCMC008_CoralReefs2018_v4_1/WCMC008_CoralReef2018_Py_v4_1.shp
